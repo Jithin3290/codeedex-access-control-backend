@@ -15,10 +15,7 @@ class CreateUserView(APIView):
         password = request.data.get("password")
 
         if not username or not password:
-            return Response(
-                {"error": "username and password required"},
-                status=400
-            )
+            return Response({"error": "username and password required"}, status=400)
 
         user = User.objects.create_user(
             username=username,
