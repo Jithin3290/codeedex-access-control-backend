@@ -1,5 +1,8 @@
 from rest_framework.permissions import BasePermission
 from core.permissions import get_user_permissions
+from rest_framework.permissions import BasePermission
+from access.models import Permission, Role
+from accounts.models import UserPermission
 
 class HasPermission(BasePermission):
     def has_permission(self, request, view):
@@ -9,11 +12,13 @@ class HasPermission(BasePermission):
 
         user = request.user
 
-        # collect permissions from roles
-        role_perms = Permission.objects.filter(
-            roles__users=user,
+        # get roles assigned to user
+        role_ids = UserPermission.objects.filter(
+            user=user
+        ).values_list("role_id", flat=True)
+
+        # check if any of those roles has the permission
+        return Permission.objects.filter(
+            role_id__in=role_ids,
             code=required
         ).exists()
-
-        return role_perms
-
